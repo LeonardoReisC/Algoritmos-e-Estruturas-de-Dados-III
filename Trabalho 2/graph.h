@@ -9,15 +9,19 @@ list<node>** createAdjacencyList(int size) {
 
 void addEdge(string u, string v, int weight, list<node>** graph) {
     node* tmp = new node;
-    tmp->info = make_tuple(u,v,weight);
+    *tmp = make_tuple(u,v,weight);
     graph[stoi(u)]->push_back(*tmp);
     delete tmp;
 }
 
-list<node>** buildGraph(int size) {
+list<node>::iterator* findDiameter(list<node>* minPaths) { 
+    return searchList(minPaths, get<2>(*(minPaths->begin())), isHigher, true); 
+}
+
+list<node>** buildGraph(string fileName, int size) {
     list<node>** graph = createAdjacencyList(size);
     ifstream file; 
-    file.open("n100.txt");
+    file.open(fileName);
     file >> size;
     do {
         string u,v;

@@ -1,9 +1,10 @@
-#include <iostream>
 #include <tuple>
 #include <list>
 #include "math.h"
 
 using namespace std;
+
+typedef tuple<string,string,int> node;
 
 /**
  * Cria uma minHeap de tamanho V que contem todos os vertices de G - "ok"
@@ -18,15 +19,11 @@ using namespace std;
  * 
  * */
 
-struct node{
-    tuple<string,string,int> info;
-};
-
 list<node>* findAdjacents(list<node>** graph, string vertex) { return graph[stoi(vertex)]; } 
 
 bool isInMinHeap(list<node>* minHeap, string vertex, list<node>::iterator* v) {
     for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
-        if (get<1>(it->info) == vertex) {
+        if (get<1>(*it) == vertex) {
             *v = it;
             return true;
         }
@@ -38,28 +35,65 @@ list<node>* createMinHeap(int size, string sourceRoot) {
     list<node>* tmp = new list<node>;
     for (int i = 0; i < size; i++) {
         node* u = new node;
-        u->info = make_tuple(to_string(i), to_string(i), (int)INFINITY);
-        if (get<0>(u->info) == sourceRoot) u->info = make_tuple(sourceRoot,sourceRoot,0);
+        *u = make_tuple(to_string(i), to_string(i), (int)INFINITY);
+        if (get<0>(*u) == sourceRoot) *u = make_tuple(sourceRoot,sourceRoot,0);
         tmp->push_back(*u);
         delete u;
     }
     return tmp;
 }
 
-node* extractMinHeap(list<node>* minHeap) {
-    node* tmp = NULL;
-    int min = (int)INFINITY;
-    list<node>::iterator it1 = minHeap->begin();
-    for (list<node>::iterator it2 = it1; it2 != minHeap->end(); it2++) {
-        if (get<2>(it2->info) < min) {
-            min = get<2>(it2->info);
-            tmp = new node;
-            *tmp = *it2;
-            it1 = it2;
+bool isLower(int x, int y) {
+    if (x < y) return true;
+    else return false;
+}
+
+bool isHigher(int x, int y) {
+    if (x >= y) return true;
+    else return false;
+}
+
+bool equalsTo(int x, int y) {
+    if (x == y) return true;
+    else return false;
+}
+
+list<node>::iterator* searchList(list<node>* minHeap, int factor, bool func(int,int), bool state) {
+    list<node>::iterator* tmp = NULL;
+
+    for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
+        int compare;
+        if (state) compare = get<2>(*it);
+        else compare = stoi(get<1>(*it)); 
+        if (func(compare, factor)) {
+            factor = get<2>(*it);
+            tmp = new list<node>::iterator;
+            *tmp = it;
+            if (!state) return tmp;
         }
     }
-    minHeap->erase(it1);
+    
     return tmp;
+}
+
+node* extractMinHeap(list<node>* minHeap) {
+    node* tmp = new node;
+    list<node>::iterator* it = searchList(minHeap, (int)INFINITY, isLower, true);
+    if (it == NULL) return NULL;
+    *tmp = **it;
+    minHeap->erase(*it);
+    return tmp;
+}
+
+list<int>* getPath(list<node>* dijkstra, list<node>::iterator it) {
+    list<int>* path = new list<int>;
+    while (it != dijkstra->begin()) {
+        path->push_back(stoi(get<1>(*it)));
+        it = *searchList(dijkstra, stoi(get<0>(*it)), equalsTo, false);
+    }
+    path->push_back(stoi(get<1>(*it)));
+    path->reverse();
+    return path;        
 }
 
 list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
@@ -70,15 +104,15 @@ list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
         node* vertex = extractMinHeap(minHeap);
         if (vertex == NULL) return dijkstra;
         dijkstra->push_back(*vertex);
-        adjacents = findAdjacents(graph, get<1>(vertex->info));
+        adjacents = findAdjacents(graph, get<1>(*vertex));
 
         for (list<node>::iterator it = adjacents->begin(), v; it != adjacents->end(); it++) {
             if (minHeap->empty()) return dijkstra;
-            if (isInMinHeap(minHeap, get<1>(it->info), &v)) {
-                int dV = get<2>(v->info), wU_V = get<2>(it->info), dU = get<2>(vertex->info);           
+            if (isInMinHeap(minHeap, get<1>(*it), &v)) {
+                int dV = get<2>(*v), wU_V = get<2>(*it), dU = get<2>(*vertex);           
                 if (dV > wU_V + dU) {
-                    get<2>(v->info) = wU_V + dU;
-                    get<0>(v->info) = get<1>(vertex->info);
+                    get<2>(*v) = wU_V + dU;
+                    get<0>(*v) = get<1>(*vertex);
                 }
             }
         }

@@ -1,4 +1,7 @@
+#include <iostream>
 #include "graph.h"
+
+
 
 /**
  * RESUMO
@@ -7,28 +10,51 @@
  * Selecionar o maior caminho dentre todos da estrutura contruida acima e disponibilizar a saida solicitada
  * */
 
+void printStats(string fileName, list<int>* path, int cost) {
+    fileName.erase(fileName.size()-4);
+    cout << fileName << endl;
+    for (list<int>::iterator it = path->begin(); it != path->end(); it++) {
+        cout << *it << " ";
+    }
+    cout << endl << cost;
+}
+
 int main() {
     list<node>** graph;
-    int size;
+    list<node>::iterator diameter;
+    int graphSize;
     ifstream file;
-    file.open("n100.txt"); // input para arquivo depois
+    string fileName;
+    cout << "+---------------------------------------+" << endl;
+    cout << "|\tInforme o arquivo de entrada\t| " << endl;
+    cout << "+---------------------------------------+" << endl;
+    cin >> fileName;
+
+    file.open(fileName);
     if (file.is_open()) {
-        file >> size;
+        file >> graphSize;
         file.close();
     } else {
         cout << "Unable to open file! Try again.." << endl;
-        return 1;
+        return EXIT_FAILURE;
     }
     
-    buildGraph(size);
-    graph = buildGraph(size);
+    graph = buildGraph(fileName, graphSize);
 
-    list<node>** minPath = new list<node>*[size];
-    for (int i = 0; i < size; i++) {
-        minPath[i] = dijkstraAlgorithm(graph, to_string(i), size);
+    list<node>* dijkstra = dijkstraAlgorithm(graph, to_string(0), graphSize);
+    diameter = *findDiameter(dijkstra);
+
+    for (int i = 0; i < graphSize-1; i++) {
+        list<node>* tmp = dijkstraAlgorithm(graph, to_string(i+1), graphSize);
+        list<node>::iterator it = *findDiameter(tmp);
+        
+        if (isHigher(get<2>(*it), get<2>(*diameter))) {
+            diameter = it;
+            dijkstra = tmp;
+        }
     }
-    
-    
 
-    return 0;
+    list<int>* path = getPath(dijkstra, diameter);
+    printStats(fileName, path, get<2>(*diameter));
+    return EXIT_SUCCESS;
 }
