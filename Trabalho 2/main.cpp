@@ -1,14 +1,5 @@
 #include <iostream>
-#include "graph.h"
-
-
-
-/**
- * RESUMO
- * Para cada vertice no grafo, computar dijkstra e armazenar em uma lista e colocar essa lista em um vetor
- *      - o resultado será similar à uma lista de adjacencia contendo dijkstra para todos os vertices u
- * Selecionar o maior caminho dentre todos da estrutura contruida acima e disponibilizar a saida solicitada
- * */
+#include "graph.h"               
 
 void printStats(string fileName, list<int>* path, int cost) {
     fileName.erase(fileName.size()-4);
@@ -41,9 +32,12 @@ int main() {
     
     graph = buildGraph(fileName, graphSize);
 
+    //calcula Dijkstra para o 1º vértice(0) e armazena em "diameter" o diâmetro da CPT(Cheapest-Paths Tree) de raiz 0.
     list<node>* dijkstra = dijkstraAlgorithm(graph, to_string(0), graphSize);
     diameter = *findDiameter(dijkstra);
 
+    //loop que calcula o diâmetro máximo de G(graph).
+    //compara o diametro da CPT de raiz (i+1) com o maior diamêtro, até então encontrado.
     for (int i = 0; i < graphSize-1; i++) {
         list<node>* tmp = dijkstraAlgorithm(graph, to_string(i+1), graphSize);
         list<node>::iterator it = *findDiameter(tmp);
@@ -54,7 +48,7 @@ int main() {
         }
     }
 
-    list<int>* path = getPath(dijkstra, diameter);
+    list<int>* path = getPath(dijkstra, diameter); 
     printStats(fileName, path, get<2>(*diameter));
     return EXIT_SUCCESS;
 }

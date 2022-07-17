@@ -19,29 +19,6 @@ typedef tuple<string,string,int> node;
  * 
  * */
 
-list<node>* findAdjacents(list<node>** graph, string vertex) { return graph[stoi(vertex)]; } 
-
-bool isInMinHeap(list<node>* minHeap, string vertex, list<node>::iterator* v) {
-    for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
-        if (get<1>(*it) == vertex) {
-            *v = it;
-            return true;
-        }
-    }
-    return false;
-}
-
-list<node>* createMinHeap(int size, string sourceRoot) {
-    list<node>* tmp = new list<node>;
-    for (int i = 0; i < size; i++) {
-        node* u = new node;
-        *u = make_tuple(to_string(i), to_string(i), (int)INFINITY);
-        if (get<0>(*u) == sourceRoot) *u = make_tuple(sourceRoot,sourceRoot,0);
-        tmp->push_back(*u);
-        delete u;
-    }
-    return tmp;
-}
 
 bool isLower(int x, int y) {
     if (x < y) return true;
@@ -58,13 +35,47 @@ bool equalsTo(int x, int y) {
     else return false;
 }
 
-list<node>::iterator* searchList(list<node>* minHeap, int factor, bool func(int,int), bool state) {
+/** @brief Retorna um lista do grafo contendo todos so adjacentes de "vertex" */
+list<node>* findAdjacents(list<node>** graph, string vertex) { return graph[stoi(vertex)]; } 
+
+/**************************************************************** 
+ * @brief Verifica se um vértice "vertex" está na Minimum Heap  *    
+ * @return verdairo, se existir "vertex"                        *    
+****************************************************************/
+bool isInMinHeap(list<node>* minHeap, string vertex, list<node>::iterator* v) {
+    for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
+        if (get<1>(*it) == vertex) {
+            *v = it;
+            return true;
+        }
+    }
+    return false;
+}
+
+/** @brief Aloca, dinamicamente, uma lista contendo todos os vertices de G e inicializa seus pesos com infinito*/
+list<node>* createMinHeap(int size, string sourceRoot) {
+    list<node>* tmp = new list<node>;
+
+    for (int i = 0; i < size; i++) {
+        node* u = new node;
+        *u = make_tuple(to_string(i), to_string(i), (int)INFINITY);
+        if (get<0>(*u) == sourceRoot) *u = make_tuple(sourceRoot,sourceRoot,0);
+
+        tmp->push_back(*u);
+        delete u;
+    }
+    return tmp;
+}
+
+/** @brief Varre a */
+list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int), bool state) {
     list<node>::iterator* tmp = NULL;
 
-    for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
+    for (list<node>::iterator it = List->begin(); it != List->end(); it++) {
         int compare;
         if (state) compare = get<2>(*it);
         else compare = stoi(get<1>(*it)); 
+
         if (func(compare, factor)) {
             factor = get<2>(*it);
             tmp = new list<node>::iterator;
@@ -76,6 +87,7 @@ list<node>::iterator* searchList(list<node>* minHeap, int factor, bool func(int,
     return tmp;
 }
 
+/** @brief Retira da Minimum Heap o vértice de menor peso. */
 node* extractMinHeap(list<node>* minHeap) {
     node* tmp = new node;
     list<node>::iterator* it = searchList(minHeap, (int)INFINITY, isLower, true);
@@ -85,17 +97,7 @@ node* extractMinHeap(list<node>* minHeap) {
     return tmp;
 }
 
-list<int>* getPath(list<node>* dijkstra, list<node>::iterator it) {
-    list<int>* path = new list<int>;
-    while (it != dijkstra->begin()) {
-        path->push_back(stoi(get<1>(*it)));
-        it = *searchList(dijkstra, stoi(get<0>(*it)), equalsTo, false);
-    }
-    path->push_back(stoi(get<1>(*it)));
-    path->reverse();
-    return path;        
-}
-
+/** Computa o Algoritmo de Dijkstra levando em consideração a raiz(sourceRoot) da CPT. */
 list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
     list<node>* minHeap = createMinHeap(size, sourceRoot);
     list<node>* dijkstra = new list<node>;
@@ -118,4 +120,15 @@ list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
         }
     }
     return dijkstra;
+}
+
+list<int>* getPath(list<node>* dijkstra, list<node>::iterator it) {
+    list<int>* path = new list<int>;
+    while (it != dijkstra->begin()) {
+        path->push_back(stoi(get<1>(*it)));
+        it = *searchList(dijkstra, stoi(get<0>(*it)), equalsTo, false);
+    }
+    path->push_back(stoi(get<1>(*it)));
+    path->reverse();
+    return path;        
 }
