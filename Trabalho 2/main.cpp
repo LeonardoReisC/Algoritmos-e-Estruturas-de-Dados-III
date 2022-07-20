@@ -7,7 +7,7 @@ void printStats(string fileName, list<int>* path, int cost) {
     for (list<int>::iterator it = path->begin(); it != path->end(); it++) {
         cout << *it << " ";
     }
-    cout << endl << cost;
+    cout << endl << cost << endl;
 }
 
 int main() {

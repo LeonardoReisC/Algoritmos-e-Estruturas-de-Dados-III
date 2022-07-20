@@ -40,7 +40,7 @@ list<node>* findAdjacents(list<node>** graph, string vertex) { return graph[stoi
 
 /**************************************************************** 
  * @brief Verifica se um vértice "vertex" está na Minimum Heap  *    
- * @return verdairo, se existir "vertex"                        *    
+ * @return verdadeiro, se existir "vertex"                        *    
 ****************************************************************/
 bool isInMinHeap(list<node>* minHeap, string vertex, list<node>::iterator* v) {
     for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
@@ -69,7 +69,7 @@ list<node>* createMinHeap(int size, string sourceRoot) {
 
 /** @brief Varre a */
 list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int), bool state) {
-    list<node>::iterator* tmp = NULL;
+    list<node>::iterator* tmp = new list<node>::iterator; //# list<node>::iterator* tmp = NULL;
 
     for (list<node>::iterator it = List->begin(); it != List->end(); it++) {
         int compare;
@@ -78,7 +78,6 @@ list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int
 
         if (func(compare, factor)) {
             factor = get<2>(*it);
-            tmp = new list<node>::iterator;
             *tmp = it;
             if (!state) return tmp;
         }
@@ -91,7 +90,7 @@ list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int
 node* extractMinHeap(list<node>* minHeap) {
     node* tmp = new node;
     list<node>::iterator* it = searchList(minHeap, (int)INFINITY, isLower, true);
-    if (it == NULL) return NULL;
+    //# if (it == NULL) return NULL;
     *tmp = **it;
     minHeap->erase(*it);
     return tmp;
@@ -104,7 +103,7 @@ list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
     while (!minHeap->empty()) {
         list<node>* adjacents = new list<node>;
         node* vertex = extractMinHeap(minHeap);
-        if (vertex == NULL) return dijkstra;
+        //# if (vertex == NULL) return dijkstra;
         dijkstra->push_back(*vertex);
         adjacents = findAdjacents(graph, get<1>(*vertex));
 

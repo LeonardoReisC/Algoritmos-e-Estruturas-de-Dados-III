@@ -43,6 +43,7 @@ list<node>** buildGraph(string fileName, int size) {
         int weight;
         file >> u >> v >> weight;
         addEdge(u,v,weight,graph);
+        addEdge(v,u,weight,graph); //#
     } while (!file.eof());
     return graph;
 }
