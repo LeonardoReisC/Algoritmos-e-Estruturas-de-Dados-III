@@ -43,12 +43,11 @@ list<node>** buildGraph(string fileName, int size) {
         int weight;
         file >> u >> v >> weight;
         addEdge(u,v,weight,graph);
-        addEdge(v,u,weight,graph);
     } while (!file.eof());
     return graph;
 }
 
 /** @brief Encontra o diâmetro(maior caminho mínimo) de uma CPT(Cheapest-Paths Tree). */
 list<node>::iterator* findDiameter(list<node>* minPaths) { 
-    return searchList(minPaths, get<2>(*(minPaths->begin())), isHigher, false); 
+    return searchList(minPaths, get<2>(*(minPaths->begin())), isHigher, true); 
 }

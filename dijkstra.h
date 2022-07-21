@@ -6,7 +6,6 @@ using namespace std;
 
 typedef tuple<string,string,int> node;
 
-
 bool isLower(int x, int y) {
     if (x < y) return true;
     else return false;
@@ -27,7 +26,7 @@ list<node>* findAdjacents(list<node>** graph, string vertex) { return graph[stoi
 
 /**************************************************************** 
  * @brief Verifica se um vértice "vertex" está na Minimum Heap  *    
- * @return verdadeiro, se existir "vertex"                      *    
+ * @return verdairo, se existir "vertex"                        *    
 ****************************************************************/
 bool isInMinHeap(list<node>* minHeap, string vertex, list<node>::iterator* v) {
     for (list<node>::iterator it = minHeap->begin(); it != minHeap->end(); it++) {
@@ -54,32 +53,33 @@ list<node>* createMinHeap(int size, string sourceRoot) {
     return tmp;
 }
 
-/************************************************************************************************
- * @brief Varre uma lista genérica para encontrar um elemento que tem relação com "factor",     *                
- * tal que essa relação é definida por "func".                                                  *    
- *                                                                                              *                    
- * @param func critério de seleção dos elementos da lista com "factor".                         *                    
- * @param state define o elemento que será seleciona da tupla bem como impacta na execução      *                                
- * do código.                                                                                   *                   
- *      - Se true: compara com o 3º elemento da tupla e retorna seu valor no momento em que     *        
- *               o elemento for encontra na lista, interrompendo da execução da função.         *        
- *      - Caso contrário, compara com o 2º elemento da tupla e não retorna seu valor. Portanto  *        
- *                      a lista deverá ser percorrida por completo.                             *                    
- *                                                                                              *    
- * @return iterator que aponta para o local encontrado na lista.                                *    
- ***********************************************************************************************/
+/** 
+ * @brief Varre uma lista genérica para encontrar um elemento que tem relação com "factor",
+ * tal que essa relação é definida por "func"
+ * 
+ * @param func critério de seleção dos elementos da lista com "factor"
+ * @param state define o elemento que será seleciona da tupla bem como impacta na execução 
+ * do código
+ *      Se true: compara com o 3º elemento da tupla e retorna seu valor no momento em que
+ *               o elemento for encontra na lista, interrompendo da execução da função
+ *      Caso contrário, compara com o 2º elemento da tupla e não retorna seu valor. Portanto
+ *                      a lista deverá ser percorrida por completo
+ * 
+ * @return iterator que aponta para o local encontrado na lista
+*/
 list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int), bool state) {
-    list<node>::iterator* tmp = new list<node>::iterator; //# list<node>::iterator* tmp = NULL;
+    list<node>::iterator* tmp = NULL;
 
     for (list<node>::iterator it = List->begin(); it != List->end(); it++) {
         int compare;
-        if (state) compare = stoi(get<1>(*it));
-        else compare = get<2>(*it); 
+        if (state) compare = get<2>(*it);
+        else compare = stoi(get<1>(*it)); 
 
         if (func(compare, factor)) {
             factor = get<2>(*it);
+            tmp = new list<node>::iterator;
             *tmp = it;
-            if (state) return tmp;
+            if (!state) return tmp;
         }
     }
     
@@ -89,8 +89,8 @@ list<node>::iterator* searchList(list<node>* List, int factor, bool func(int,int
 /** @brief Retira da Minimum Heap o vértice de menor peso. */
 node* extractMinHeap(list<node>* minHeap) {
     node* tmp = new node;
-    list<node>::iterator* it = searchList(minHeap, (int)INFINITY, isLower, false);
-    
+    list<node>::iterator* it = searchList(minHeap, (int)INFINITY, isLower, true);
+    if (it == NULL) return NULL;
     *tmp = **it;
     minHeap->erase(*it);
     return tmp;
@@ -103,16 +103,15 @@ list<node>* dijkstraAlgorithm(list<node>** graph, string sourceRoot, int size) {
     while (!minHeap->empty()) {
         list<node>* adjacents = new list<node>;
         node* vertex = extractMinHeap(minHeap);
+        if (vertex == NULL) return dijkstra;
         dijkstra->push_back(*vertex);
         adjacents = findAdjacents(graph, get<1>(*vertex));
 
         for (list<node>::iterator it = adjacents->begin(), v; it != adjacents->end(); it++) {
             if (minHeap->empty()) return dijkstra;
-
             if (isInMinHeap(minHeap, get<1>(*it), &v)) {
                 int dV = get<2>(*v), wU_V = get<2>(*it), dU = get<2>(*vertex);           
                 if (dV > wU_V + dU) {
-                    //relax()
                     get<2>(*v) = wU_V + dU;
                     get<0>(*v) = get<1>(*vertex);
                 }
@@ -126,7 +125,7 @@ list<int>* getPath(list<node>* dijkstra, list<node>::iterator it) {
     list<int>* path = new list<int>;
     while (it != dijkstra->begin()) {
         path->push_back(stoi(get<1>(*it)));
-        it = *searchList(dijkstra, stoi(get<0>(*it)), equalsTo, true);
+        it = *searchList(dijkstra, stoi(get<0>(*it)), equalsTo, false);
     }
     path->push_back(stoi(get<1>(*it)));
     path->reverse();

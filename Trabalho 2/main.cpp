@@ -1,8 +1,25 @@
 #include <iostream>
-#include "graph.h"               
+#include "graph.h"  
+
+/*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−-------------------------------------------------------------------+
+|                                                UNIFAL - Universidade Federal de Alfenas                                       | 
+|                                                  BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO                                         | 
+| Trabalho...........: Diâmetro Máximo de um Grafo                                                                              |    
+| Disciplina.........: Algoritmos e Estruturas de Dados III                                                                     |    
+| Professor..........: Iago Augusto de Carvalho                                                                                 |        
+| Alunos.............: Daniel da Costa Lima     - 2021.1.08.026                                                                 |    
+|                      Leonardo Reis Coimbra    - 2021.1.08.013                                                                 |       
+|                      Renan Magalhães Lage     - 2021.1.08.020                                                                 |       
+| Data...............: 21/07/2022                                                                                               |    
++------------------------------------------------------------------------------------------------------------------------------*/
 
 void printStats(string fileName, list<int>* path, int cost) {
-    fileName.erase(fileName.size()-4);
+    int pos = fileName.find_last_of("/");
+    if (pos != -1) fileName.erase(fileName.begin(), fileName.begin()+(pos+1)); //checa se o arquivo está dentro de um diretório
+
+    pos = fileName.find_last_of("."); //checa se o arquivo apresenta extensão ".txt"
+    if (pos != -1) fileName.erase(pos,4);
+    
     cout << fileName << endl;
     for (list<int>::iterator it = path->begin(); it != path->end(); it++) {
         cout << *it << " ";
@@ -20,6 +37,7 @@ int main() {
     cout << "|\tInforme o arquivo de entrada\t| " << endl;
     cout << "+---------------------------------------+" << endl;
     cin >> fileName;
+    cout << endl;
 
     file.open(fileName);
     if (file.is_open()) {
@@ -50,5 +68,6 @@ int main() {
 
     list<int>* path = getPath(dijkstra, diameter); 
     printStats(fileName, path, get<2>(*diameter));
+
     return EXIT_SUCCESS;
 }
